@@ -1,0 +1,763 @@
+---
+title: "Time Series Data Analysis on Temperature"
+author: "Temperature Data"
+date: " "
+output: 
+   html_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("E:\\29-09-2021_1\\Data to Merge")
+```
+
+```{r packages, echo=FALSE,message=FALSE, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(tidyverse)
+library(plotly)
+library(readr)
+library(rmarkdown)
+library(bigmemory)
+library(biganalytics)
+library(bigtabulate)
+```
+
+# Introduction
+
+## Data Merging
+The different but common data were merged together to form a one data frame. There were 25 CSV files in total with 8 major categories. The categories and the total number of files, and the total rows after merging. After merging we obtained 8 major data sets.
+
+### Merged data sets
+ - Air Sun Shade (3: 292452)
+ - Big Mine Sunshine (3: 445563 )
+ - Evacuated tube (5: 793271)
+ - Little Mine (3: 345873)
+ - Super Big Mine (3: 371060)
+ - One Split (3: 445407)
+ - Pool Heater (2: 335270)
+ - Pool Pit (3: 416003)
+
+## Time Series Plots
+There are 8 plots that are based on the 8 merged data sets. The plots are responsive per the use requirement. The user can view the time series plot for one temperature performance at a go, by clicking on the legend. Clicking the legend will make one plot to disappear, and after clicking it again, the plot will appear.
+
+### Air Sun Shade
+
+The number of rows for the Air Sun Shade data set:
+```{r, echo=FALSE}
+df_AirSunShade <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\AirSunShade", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+nrow(df_AirSunShade)
+```
+
+The variable names for the Air Sun Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_AirSunShade)
+```
+
+
+```{r,echo=FALSE}
+AirSunShade <- df_AirSunShade%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test1 <- AirSunShade%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test1 <- data.frame(test1)
+nrow(test1)
+```
+
+#### Statistics
+
+```{r one, echo=FALSE}
+FirstReading <-max(na.omit(df_AirSunShade$DateTime))
+LastReading <-  min(na.omit(df_AirSunShade$DateTime)) 
+Minimum <- min(na.omit(AirSunShade$Temperature1))
+Maximum <- max(na.omit(AirSunShade$Temperature1))
+Average <- mean(na.omit(AirSunShade$Temperature1))
+StandardDeviation <- sd(na.omit(AirSunShade$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r two, echo=FALSE}
+Minimum <- min(na.omit(AirSunShade$Temperature2))
+Maximum <- max(na.omit(AirSunShade$Temperature2))
+Average <- mean(na.omit(AirSunShade$Temperature2))
+StandardDeviation <- sd(na.omit(AirSunShade$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r,echo=FALSE}
+dates <- unique(sort(test1$DateTime))
+Date = factor(test1$DateTime, labels = dates,ordered = T)
+p1 <- ggplot(test1,aes(x = Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "ShadeTemperature")) +
+  geom_line(aes(y=temperature2,group = 1,color = "SunTemperature"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Air Sun Shade")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p1, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+### Big Mine Sunshine
+
+The number of rows for the Big Mine Sunshine data set:
+```{r, echo=FALSE}
+df_BigMineSunshine <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\bigMineSunshine", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+nrow(df_BigMineSunshine)
+#df_BigMineSunshine <- na.omit(df_BigMineSunshine)
+```
+
+The variable names for the Air Sun Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_BigMineSunshine)
+```
+
+
+```{r,echo=FALSE}
+BigMineSunshine <- df_BigMineSunshine%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test2 <- BigMineSunshine%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test2 <- data.frame(test2)
+nrow(test2)
+```
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <-max(na.omit(df_BigMineSunshine$DateTime))
+LastReading <-  min(na.omit(df_BigMineSunshine$DateTime)) 
+Minimum <- min(na.omit(BigMineSunshine$Temperature1))
+Maximum <- max(na.omit(BigMineSunshine$Temperature1))
+Average <- mean(na.omit(BigMineSunshine$Temperature1))
+StandardDeviation <- sd(na.omit(BigMineSunshine$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(BigMineSunshine$Temperature2))
+Maximum <- max(na.omit(BigMineSunshine$Temperature2))
+Average <- mean(na.omit(BigMineSunshine$Temperature2))
+StandardDeviation <- sd(na.omit(BigMineSunshine$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+```
+
+```{r,echo=FALSE}
+dates <- unique(sort(test2$Date))
+Date = factor(test2$Date, labels = dates,ordered = T)
+p2 <- ggplot(test2,aes(x=Date))+
+  geom_line(aes(y=temperature1,group = 1,color = "topTemperature")) +
+  geom_line(aes(y=temperature2,group = 1,color = "bottomTemperature"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Big Mine Sunshine")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p2, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+### Evacuated tube
+
+The number of rows for the Evacuated tube data set:
+```{r, echo=FALSE}
+df_Evacuatedtube <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\Evacuatedtube", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+nrow(df_Evacuatedtube)
+#df_BigMineSunshine <- na.omit(df_BigMineSunshine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_Evacuatedtube)
+```
+
+
+
+```{r,echo=FALSE}
+Evacuatedtube <- df_Evacuatedtube%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test3 <- Evacuatedtube%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test3 <- data.frame(test3)
+nrow(test3)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <-max(na.omit(df_Evacuatedtube$DateTime))
+LastReading <-  min(na.omit(df_Evacuatedtube$DateTime)) 
+Minimum <- min(na.omit(Evacuatedtube$Temperature1))
+Maximum <- max(na.omit(Evacuatedtube$Temperature1))
+Average <- mean(na.omit(Evacuatedtube$Temperature1))
+StandardDeviation <- sd(na.omit(Evacuatedtube$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(Evacuatedtube$Temperature2))
+Maximum <- max(na.omit(Evacuatedtube$Temperature2))
+Average <- mean(na.omit(Evacuatedtube$Temperature2))
+StandardDeviation <- sd(na.omit(Evacuatedtube$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+
+```{r,echo=FALSE}
+dates <- unique(sort(test3$Date))
+Date = factor(test3$Date, labels = dates,ordered = T)
+p3 <- ggplot(test3,aes(x=Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "end Of Exchanger Temperature")) +
+  geom_line(aes(y=temperature2,group = 1,color = "tank Temperature"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Evacuated tube")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p3, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+
+### Little Mine
+
+The number of rows for the Little Mine data set:
+```{r, echo=FALSE}
+df_LittleMine <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\LittleMine", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+class(df_LittleMine)
+nrow(df_LittleMine)
+#df_LittleMine1 <- na.omit(df_LittleMine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_LittleMine)
+```
+
+```{r,echo=FALSE}
+LittleMine <- df_LittleMine%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test4 <- LittleMine%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test4 <- data.frame(test4)
+nrow(test4)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <- max(na.omit(df_LittleMine$DateTime))
+LastReading <- min(na.omit(df_LittleMine$DateTime)) 
+Minimum <- min(na.omit(LittleMine$Temperature1))
+Maximum <- max(na.omit(LittleMine$Temperature1))
+Average <- mean(na.omit(LittleMine$Temperature1))
+StandardDeviation <- sd(na.omit(LittleMine$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(LittleMine$Temperature2))
+Maximum <- max(na.omit(LittleMine$Temperature2))
+Average <- mean(na.omit(LittleMine$Temperature2))
+StandardDeviation <- sd(na.omit(LittleMine$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+
+```{r,echo=FALSE}
+dates <- unique(sort(test4$Date))
+Date = factor(test4$Date, labels = dates,ordered = T)
+p4 <- ggplot(test4,aes(x = Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "evacuated Tube Temperature")) +
+  geom_line(aes(y=temperature2,group = 1,color = "little Mine Temperature"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Little Mine")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p4, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+### Super Big Mine
+
+The number of rows for the Super Big Mine data set:
+```{r, echo=FALSE}
+df_Superbigmine <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\Superbigmine", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+class(df_Superbigmine)
+nrow(df_Superbigmine)
+#df_LittleMine1 <- na.omit(df_LittleMine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_Superbigmine)
+```
+
+
+```{r,echo=FALSE}
+Superbigmine <- df_Superbigmine%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test5 <- Superbigmine%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test5 <- data.frame(test5)
+nrow(test5)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <- max(na.omit(df_Superbigmine$DateTime))
+LastReading <- min(na.omit(df_Superbigmine$DateTime)) 
+Minimum <- min(na.omit(Superbigmine$Temperature1))
+Maximum <- max(na.omit(Superbigmine$Temperature1))
+Average <- mean(na.omit(Superbigmine$Temperature1))
+StandardDeviation <- sd(na.omit(Superbigmine$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(Superbigmine$Temperature2))
+Maximum <- max(na.omit(Superbigmine$Temperature2))
+Average <- mean(na.omit(Superbigmine$Temperature2))
+StandardDeviation <- sd(na.omit(Superbigmine$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+
+```{r,echo=FALSE}
+dates <- unique(sort(test5$Date))
+Date = factor(test5$Date, labels = dates,ordered = T)
+p5 <- ggplot(test5,aes(x = Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "Temperature1")) +
+  geom_line(aes(y=temperature2,group = 1,color = "Temperature2"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Super Big Mine")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p5, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+
+### One Split
+
+The number of rows for the One Split data set:
+```{r, echo=FALSE}
+df_OneSplit <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\OneSplit", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+class(df_OneSplit)
+nrow(df_OneSplit)
+#df_LittleMine1 <- na.omit(df_LittleMine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_OneSplit)
+```
+
+```{r,echo=FALSE}
+OneSplit <- df_OneSplit%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test6 <- OneSplit%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test6 <- data.frame(test6)
+nrow(test6)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <- max(na.omit(df_OneSplit$DateTime))
+LastReading <- min(na.omit(df_OneSplit$DateTime)) 
+Minimum <- min(na.omit(OneSplit$Temperature1))
+Maximum <- max(na.omit(OneSplit$Temperature1))
+Average <- mean(na.omit(OneSplit$Temperature1))
+StandardDeviation <- sd(na.omit(OneSplit$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(OneSplit$Temperature2))
+Maximum <- max(na.omit(OneSplit$Temperature2))
+Average <- mean(na.omit(OneSplit$Temperature2))
+StandardDeviation <- sd(na.omit(OneSplit$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r,echo=FALSE}
+dates <- unique(sort(test6$Date))
+Date = factor(test6$Date, labels = dates,ordered = T)
+p6 <- ggplot(test6,aes(x = Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "Temperature1")) +
+  geom_line(aes(y=temperature2,group = 1,color = "Temperature2"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("One Split")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p6, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+
+
+### Pool Heater
+
+The number of rows for the Pool Heater data set:
+```{r, echo=FALSE}
+df_PoolHeater <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\PoolHeater", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+class(df_PoolHeater)
+nrow(df_PoolHeater)
+#df_LittleMine1 <- na.omit(df_LittleMine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_PoolHeater)
+```
+
+
+```{r,echo=FALSE}
+PoolHeater <- df_PoolHeater%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test7 <- PoolHeater%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test7 <- data.frame(test7)
+nrow(test7)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <- max(na.omit(df_PoolHeater$DateTime))
+LastReading <- min(na.omit(df_PoolHeater$DateTime)) 
+Minimum <- min(na.omit(PoolHeater$Temperature1))
+Maximum <- max(na.omit(PoolHeater$Temperature1))
+Average <- mean(na.omit(PoolHeater$Temperature1))
+StandardDeviation <- sd(na.omit(PoolHeater$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(PoolHeater$Temperature2))
+Maximum <- max(na.omit(PoolHeater$Temperature2))
+Average <- mean(na.omit(PoolHeater$Temperature2))
+StandardDeviation <- sd(na.omit(PoolHeater$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+
+```{r,echo=FALSE}
+dates <- unique(sort(test7$Date))
+Date = factor(test7$Date, labels = dates,ordered = T)
+p7 <- ggplot(test7,aes(x=Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "Temperature1")) +
+  geom_line(aes(y=temperature2,group = 1,color = "Temperature2"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Pool Heater")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p7, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+```
+
+
+### Pool Pit
+
+The number of rows for the Pool Pit data set:
+```{r, echo=FALSE}
+df_PoolPit <- list.files(path="E:\\29-09-2021_1\\Data to Merge\\PoolPit", pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read.csv) %>%
+  bind_rows
+class(df_PoolPit)
+nrow(df_PoolPit)
+#df_LittleMine1 <- na.omit(df_LittleMine)
+```
+
+The variable names for the Evacuated tube Shade are as follows:
+```{r,echo=FALSE}
+colnames(df_PoolPit)
+```
+
+
+```{r,echo=FALSE}
+PoolPit <- df_PoolPit%>%
+  select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)
+```
+
+```{r, echo=FALSE}
+test8 <- PoolPit%>%
+   select(DateTime,Date,Month,Year, Temperature1, Temperature2)%>%
+  group_by(Month,Date)%>%
+  summarise(temperature1 = round(mean(Temperature1),2),
+            temperature2 = round(mean(Temperature2),2))
+test8 <- data.frame(test8)
+nrow(test8)
+```
+
+
+#### Statistics
+
+```{r, echo=FALSE}
+FirstReading <- max(na.omit(df_PoolPit$DateTime))
+LastReading <- min(na.omit(df_PoolPit$DateTime)) 
+Minimum <- min(na.omit(PoolPit$Temperature1))
+Maximum <- max(na.omit(PoolPit$Temperature1))
+Average <- mean(na.omit(PoolPit$Temperature1))
+StandardDeviation <- sd(na.omit(PoolPit$Temperature1))
+
+
+rbind(FirstReading,LastReading,Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+```{r, echo=FALSE}
+Minimum <- min(na.omit(PoolPit$Temperature2))
+Maximum <- max(na.omit(PoolPit$Temperature2))
+Average <- mean(na.omit(PoolPit$Temperature2))
+StandardDeviation <- sd(na.omit(PoolPit$Temperature2))
+
+
+rbind(Minimum,Maximum,Average,StandardDeviation)
+
+```
+
+
+```{r,echo=FALSE}
+dates <- unique(sort(test8$Date))
+Date = factor(test8$Date, labels = dates,ordered = T)
+p8 <- ggplot(test8,aes(x=Date)) +
+  geom_line(aes(y=temperature1,group = 1,color = "Temperature1")) +
+  geom_line(aes(y=temperature2,group = 1,color = "Temperature2"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("Pool Pit")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+p88<-ggplotly(p8, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+p88
+```
+
+
+### All Data Sets and Plots
+
+The number of rows for the Pool Pit data set:
+```{r, echo=FALSE,include=FALSE}
+df_AirSunShade
+df_BigMineSunshine
+df_Evacuatedtube 
+df_LittleMine 
+df_Superbigmine 
+df_OneSplit 
+df_PoolHeater 
+df_PoolPit
+```
+
+```{r,  echo=FALSE,include=FALSE}
+test1
+test2
+test3
+test4
+test5
+test6
+test7
+test8
+```
+
+```{r, echo=FALSE}
+test9 <- cbind(
+  test1[1:214,]
+,test2[1:214,]
+,test3[1:214,]
+,test4[1:214,]
+,test5[1:214,]
+,test6[1:214,]
+,test7[1:214,]
+,test8[1:214,])
+
+names(test9)[3] <- "Temp11"
+names(test9)[4] <- "Temp12"
+names(test9)[7] <- "Temp21"
+names(test9)[8] <- "Temp22"
+names(test9)[11] <- "Temp31"
+names(test9)[12] <- "Temp32"
+names(test9)[15] <- "Temp41"
+names(test9)[16] <- "Temp42"
+names(test9)[19] <- "Temp51"
+names(test9)[20] <- "Temp52"
+names(test9)[23] <- "Temp61"
+names(test9)[24] <- "Temp62"
+names(test9)[27] <- "Temp71"
+names(test9)[28] <- "Temp72"
+names(test9)[31] <- "Temp81"
+names(test9)[32] <- "Temp82"
+names(test9)[2] <- "Date1"
+
+test9 = subset(test9, select = c(Date1,Temp11,Temp12,Temp21,Temp22,Temp31,Temp32,Temp41,Temp42,Temp51,Temp52,Temp61,Temp62,Temp71,Temp72,Temp81,Temp82) )
+
+#head(test9)
+```
+
+```{r, echo=FALSE}
+dates <- unique(sort(test9$Date1))
+Date1 = factor(test9$Date1, labels = dates,ordered = T)
+pal <- ggplot(test9,aes(x=Date1)) +
+  geom_line(aes(y=Temp11,group = 1,color = "Air Sun Shade1")) +
+  geom_line(aes(y=Temp12,group = 1,color = "Air Sun Shade2")) +
+  geom_line(aes(y=Temp21,group = 1,color = "Big Mine Sun Shine1")) +
+  geom_line(aes(y=Temp22,group = 1,color = "Big Mine Sun Shine2")) +
+  geom_line(aes(y=Temp31,group = 1,color = "Evacuated tube1")) +
+  geom_line(aes(y=Temp32,group = 1,color = "Evacuated tube2")) +
+  geom_line(aes(y=Temp41,group = 1,color = "Little Mine1")) +
+  geom_line(aes(y=Temp42,group = 1,color = "Little Mine2")) +
+  geom_line(aes(y=Temp51,group = 1,color = "Super Big Mine1")) +
+  geom_line(aes(y=Temp52,group = 1,color = "Super Big Mine2")) +
+  geom_line(aes(y=Temp61,group = 1,color = "One Spli1")) +
+  geom_line(aes(y=Temp62,group = 1,color = "One Split2")) +
+  geom_line(aes(y=Temp71,group = 1,color = "Pool Heater1")) +
+  geom_line(aes(y=Temp72,group = 1,color = "Pool Heater2")) +
+  geom_line(aes(y=Temp81,group = 1,color = "Pool Pit1"))+
+  geom_line(aes(y=Temp82,group = 1,color = "Pool Pit2"))+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5))+
+  xlab("Date")+ ylab("Temperature 0C") +
+  ggtitle("All Temperature Plots")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(pal, dynamicTicks = TRUE) %>%
+  rangeslider() %>%
+  layout(hovermode = "x")
+
+```
+
+
+
