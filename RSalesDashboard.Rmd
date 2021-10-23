@@ -1,0 +1,195 @@
+---
+title: "Sales Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: cerulean
+    orientation: rows
+    vertical_layout: fill
+    social: ["twitter", "facebook", "menu"]
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(DT)
+library(rpivotTable)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(openintro)
+library(highcharter)
+```
+
+```{r}
+SalesData <- read.csv("SalesData.csv")
+```
+
+```{r}
+myColors <- c("darkorange","darkgreen","#FFC125","blue")
+```
+
+
+Interactive Data Visualization
+=========================================
+
+Row
+------------------------------------------
+
+### Driver Sales Analysis
+
+```{r}
+valueBox(paste("DSA Performance"),
+         color = "warning")
+```
+
+
+### Count of Customers
+```{r}
+valueBox(length(SalesData$CustomerCode),
+         icon = "fa-user")
+```
+
+
+### **Drop Size**
+
+```{r}
+gauge(round((sum(SalesData$TotalSales))/(length(SalesData$CustomerCode)),
+            digits = 2),
+            min = 1,
+            max = 50,
+            gaugeSectors(success = c(40,50),
+                         warning = c(25,30),
+                         danger = c(10,20),
+                         colors = c('green','yellow','red')))
+```
+
+### Refills
+
+```{r}
+valueBox(sum(SalesData$Pro_Refill.13Kg,SalesData$Pro_Refill.6Kg,SalesData$Pro_Refill.50Kg))
+```
+
+### Outrights
+
+```{r}
+valueBox(sum(SalesData$Pro_Outright.6Kg,SalesData$Pro_Outright.13Kg,SalesData$Pro_Outright.50Kg))
+```
+
+Row
+--------------------------------------------------
+
+### Prformance by Sales Area
+
+```{r}
+p1 <- SalesData %>%
+  group_by(Sales.Area.Name)%>%
+  summarise(Count = sum(Pro_Refill.6Kg,Pro_Refill.13Kg,Pro_Refill.50Kg,Pro_Outright.6Kg,Pro_Outright.13Kg,Pro_Outright.50Kg))%>%
+  filter(Count > 3000)%>%
+  plot_ly(x = ~Sales.Area.Name,
+         y = ~Count,
+         color = "blue",
+         #color = rainbow(238),
+         type = 'bar')%>%
+  layout(xaxis = list(title = "Performance by Sales Area"),
+         yaxis = list(title = 'Count'))
+p1
+```
+
+### Top Sales Area
+
+```{r}
+p2 <- SalesData %>%
+  group_by(Sales.Area.Name)%>%
+  summarise(Sales = sum(Pro_Refill.6Kg,Pro_Refill.13Kg,Pro_Refill.50Kg,Pro_Outright.6Kg,Pro_Outright.13Kg,Pro_Outright.50Kg))%>%
+  filter(Sales > 5000)%>%
+  plot_ly(labels= ~Sales.Area.Name,
+         values = ~Sales,
+         marker = list(colors = myColors))%>%
+  add_pie(hole = 0.4)%>%
+  layout(xaxis = list(zeroline = F,
+                      showline = F,
+                      showticklabels = F,
+                      showgrid = F),
+         yaxis = list(zeroline = F,
+                      showline = F,
+                      showticklabels = F,
+                      showgrid = F))
+p2
+  
+```
+
+
+### Trucks Vs Sales
+
+```{r}
+p3 <- SalesData%>%
+  group_by(VRegNo)%>%
+  summarise(Sales = sum(TotalSales))%>%
+  filter(Sales > 3000)
+
+p4 <- plot_ly(p3,
+              x = ~VRegNo,
+              y = ~Sales,
+              text = paste("VRegNo", p3$VRegNo,
+                       "TotalSales:", p3$Sales),
+          type = "bar")%>%
+  layout(xaxis = list(title = "Truck"),
+         yaxis = list(title = "Sales"))
+p4
+```
+
+Row
+------------------------------------------------------
+### Customer Performance
+
+```{r}
+p5 <- SalesData%>%
+  group_by(CustomerCode)%>%
+  summarise(Sales = sum(Pro_Refill.6Kg,Pro_Refill.13Kg,Pro_Refill.50Kg,Pro_Outright.6Kg,Pro_Outright.13Kg,Pro_Outright.50Kg))%>%
+  filter(Sales>280)
+
+p6 <- plot_ly(p5,
+              x = ~CustomerCode,
+              y = ~Sales,
+              text = paste("CustomerCode", p5$CustomerCode,
+                       "TotalSales:", p5$Sales),
+          type = "bar")%>%
+  layout(xaxis = list(title = "Customer Code"),
+         yaxis = list(title = "Sales"))
+p6
+  
+  
+```
+
+Data Table
+==============================================================
+
+```{r}
+datatable(SalesData,
+          caption = "Sales Data",
+          rownames = T,
+          filter = "top",
+          options = list(pageLength = 25))
+```
+
+
+Pivot Table
+================================================================
+
+```{r}
+rpivotTable(SalesData,
+            aggregatorName = "Count",
+            cols = "TotalSales",
+            rows = "Sales.Area.Name",
+            rendererName = "Heatmap")
+```
+
+About Report
+=================================================================
+Crated by: Henry Njagi (Data Scientist)
+hnjagim@gmail.com
++254 714819645
+
+Confidential: HIGHLY!
+
+
