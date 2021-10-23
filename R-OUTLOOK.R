@@ -901,8 +901,4 @@ outMail[["HTMLbody"]] = sprintf('
 
 outMail[["Attachments"]]$Add("D:\\SALES\\SalesPerformance.xlsx")
 
-
-
-
-
 outMail$Send()
