@@ -5,4 +5,4 @@ A. MASTER branch
 3. DataAnalysisTemperature. This is an Rarkdown file that is reactive to the changes of the dates. It plots a time series analysis of the temperature from different levels of measurements.
 
 B. MAIN branch
-1. Bookdown: The main file contains an SPSS book written using bookdown in RStudio and produces a well formated PDF.
+1. Bookdown: The main file contains an SPSS book written using bookdown in RStudio and produces a well formated PDF which can be printed into a book.
